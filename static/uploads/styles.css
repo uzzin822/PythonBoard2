@@ -1,0 +1,9 @@
+/* 이미지 썸네일 스타일 */
+img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover; /* 이미지 비율을 유지하며 잘라냄 */
+    border-radius: 5px; /* 모서리를 둥글게 */
+    border: 1px solid #ddd; /* 테두리 추가 */
+    background-color: #f9f9f9; /* 배경색 */
+}

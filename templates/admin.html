@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>관리자 페이지</h3>
+    </div>
+    <div class="card-body">
+        <!-- 회원 목록 테이블 -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>번호</th>
+                        <th>아이디</th>
+                        <th>이름</th>
+                        <th>가입일</th>
+                        <th>상태</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in members %}
+                    <tr>
+                        <td>{{ member.idx }}</td>
+                        <td>{{ member.uid }}</td>
+                        <td>{{ member.uname }}</td>
+                        <td>{{ member.regdate.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <span class="badge {% if member.status == 'approved' %}bg-success{% elif member.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ member.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if not member.is_admin %}
+                            <div class="btn-group">
+                                <button onclick="updateStatus('{{ member.idx }}', 'approved')" class="btn btn-sm btn-success">승인</button>
+                                <button onclick="updateStatus('{{ member.idx }}', 'pending')" class="btn btn-sm btn-warning">보류</button>
+                                <button onclick="updateStatus('{{ member.idx }}', 'rejected')" class="btn btn-sm btn-danger">거절</button>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function updateStatus(memberId, status) {
+    fetch('/admin/update_status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            member_id: memberId,
+            status: status
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}
+{% endblock %}

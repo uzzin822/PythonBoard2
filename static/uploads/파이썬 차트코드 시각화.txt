@@ -1,0 +1,93 @@
+from openpyxl import load_workbook
+from openpyxl.chart import (BarChart, LineChart, PieChart, ScatterChart, 
+                           Reference, Series)
+
+def create_various_charts(filename):
+    wb = load_workbook(filename)
+    ws = wb.active
+    
+    # "차트 모음" 시트 생성
+    chart_sheet = wb.create_sheet(title="차트 모음")
+    
+    # 데이터 범위 설정
+    data = Reference(ws, min_col=2, min_row=1, max_row=ws.max_row)
+    cats = Reference(ws, min_col=1, min_row=2, max_row=ws.max_row)
+
+    # 1. 세로 막대 차트
+    bar_chart = BarChart()
+    bar_chart.title = "매출 현황 (세로 막대)"
+    bar_chart.x_axis.title = "날짜"
+    bar_chart.y_axis.title = "매출액"
+    bar_chart.add_data(data, titles_from_data=True)
+    bar_chart.set_categories(cats)
+    chart_sheet.add_chart(bar_chart, "A1")
+
+    # 2. 가로 막대 차트
+    horizontal_bar = BarChart()
+    horizontal_bar.type = "bar"
+    horizontal_bar.title = "매출 현황 (가로 막대)"
+    horizontal_bar.x_axis.title = "매출액"
+    horizontal_bar.y_axis.title = "날짜"
+    horizontal_bar.add_data(data, titles_from_data=True)
+    horizontal_bar.set_categories(cats)
+    chart_sheet.add_chart(horizontal_bar, "A15")
+
+    # 3. 선 그래프
+    line_chart = LineChart()
+    line_chart.title = "매출 추이"
+    line_chart.x_axis.title = "날짜"
+    line_chart.y_axis.title = "매출액"
+    line_chart.add_data(data, titles_from_data=True)
+    line_chart.set_categories(cats)
+    line_chart.style = 10
+    chart_sheet.add_chart(line_chart, "I1")
+
+    # 4. 파이 차트 (첫 6개 데이터만)
+    pie_chart = PieChart()
+    pie_chart.title = "매출 비중 (상위 6개)"
+    pie_data = Reference(ws, min_col=2, min_row=1, max_row=7)
+    pie_labels = Reference(ws, min_col=1, min_row=2, max_row=7)
+    pie_chart.add_data(pie_data, titles_from_data=True)
+    pie_chart.set_categories(pie_labels)
+    chart_sheet.add_chart(pie_chart, "I15")
+
+    # 5. 복합 차트 (매출 vs 목표)
+    combo_chart = LineChart()
+    combo_chart.title = "매출 vs 목표"
+    combo_chart.x_axis.title = "날짜"
+    combo_chart.y_axis.title = "금액"
+    
+    sales_data = Reference(ws, min_col=2, min_row=1, max_row=ws.max_row)
+    target_data = Reference(ws, min_col=3, min_row=1, max_row=ws.max_row)
+    combo_chart.add_data(sales_data, titles_from_data=True)
+    combo_chart.add_data(target_data, titles_from_data=True)
+    combo_chart.set_categories(cats)
+    chart_sheet.add_chart(combo_chart, "Q1")
+
+    # 6. 분산형 차트
+    scatter_chart = ScatterChart()
+    scatter_chart.title = "매출-목표 상관관계"
+    scatter_chart.x_axis.title = "매출액"
+    scatter_chart.y_axis.title = "목표매출"
+    
+    xvalues = Reference(ws, min_col=2, min_row=2, max_row=ws.max_row)
+    yvalues = Reference(ws, min_col=3, min_row=2, max_row=ws.max_row)
+    
+    series = Series(yvalues, xvalues, title="매출 vs 목표")
+    scatter_chart.series.append(series)
+    chart_sheet.add_chart(scatter_chart, "Q15")
+
+    # 원본 워크시트에도 차트 추가
+    # 1. 세로 막대 차트 (원본용)
+    orig_bar_chart = BarChart()
+    orig_bar_chart.title = "매출 현황 (세로 막대)"
+    orig_bar_chart.x_axis.title = "날짜"
+    orig_bar_chart.y_axis.title = "매출액"
+    orig_bar_chart.add_data(data, titles_from_data=True)
+    orig_bar_chart.set_categories(cats)
+    ws.add_chart(orig_bar_chart, "E1")
+
+    wb.save('various_charts.xlsx')
+
+# 함수 실행
+create_various_charts('chart_sample.xlsx')
