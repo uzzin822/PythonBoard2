@@ -6,7 +6,6 @@
         <h3>관리자 페이지</h3>
     </div>
     <div class="card-body">
-        <!-- 회원 목록 테이블 -->
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead class="table-dark">
@@ -27,7 +26,11 @@
                         <td>{{ member.uname }}</td>
                         <td>{{ member.regdate.strftime('%Y-%m-%d') }}</td>
                         <td>
-                            <span class="badge {% if member.status == 'approved' %}bg-success{% elif member.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                            <!-- [변경] id 속성 추가 -->
+                            <span id="status-{{ member.idx }}" 
+                                  class="badge {% if member.status == 'approved' %}bg-success
+                                         {% elif member.status == 'rejected' %}bg-danger
+                                         {% else %}bg-warning{% endif %}">
                                 {{ member.status }}
                             </span>
                         </td>
@@ -64,7 +67,14 @@ function updateStatus(memberId, status) {
     .then(response => response.json())
     .then(data => {
         if(data.success) {
-            location.reload();
+            // [변경] 페이지 새로고침 대신 상태 뱃지 직접 업데이트
+            const statusBadge = document.querySelector(`#status-${memberId}`);
+            const badgeClass = status === 'approved' ? 'bg-success' : 
+                             status === 'rejected' ? 'bg-danger' : 'bg-warning';
+            statusBadge.className = `badge ${badgeClass}`;
+            statusBadge.textContent = status;
+        } else {
+            alert('상태 업데이트 실패');
         }
     });
 }

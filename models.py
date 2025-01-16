@@ -41,28 +41,22 @@ class DBManager:
     def get_post_by_id(self, id):
         try:
             self.connect()
-            # JOIN을 사용하여 게시글과 작성자 정보를 함께 가져옴
             sql = """
-                SELECT p.*, m.uname 
+                SELECT p.*, m.uname, m.uid as author_uid, m.idx as author_idx
                 FROM posts p 
                 LEFT JOIN members m ON p.author_id = m.idx 
                 WHERE p.id = %s
             """
             self.cursor.execute(sql, (id,))
             post = self.cursor.fetchone()
-            
-            # 조회수 증가
             if post:
                 update_sql = "UPDATE posts SET views = views + 1 WHERE id = %s"
                 self.cursor.execute(update_sql, (id,))
                 self.connection.commit()
-                
             return post
-        except mysql.connector.Error as error:
-            print(f"게시글 조회 실패: {error}")
-            return None
         finally:
             self.disconnect()
+
 
 
 
@@ -76,7 +70,7 @@ class DBManager:
             # 페이지에 해당하는 게시글 조회
             offset = (page - 1) * per_page
             sql = """
-                SELECT p.*, m.uname 
+                SELECT p.*, m.uname, m.uid as author_uid
                 FROM posts p 
                 LEFT JOIN members m ON p.author_id = m.idx 
                 ORDER BY p.created_at DESC
@@ -208,22 +202,22 @@ class DBManager:
         finally:
             self.disconnect()
 
+# models.py에 추가
     def create_admin_account(self):
         try:
             self.connect()
-            # 기존 admin 계정이 있는지 확인
+            # admin 계정 존재 여부 확인
             sql = "SELECT * FROM members WHERE uid = 'admin'"
             self.cursor.execute(sql)
             if not self.cursor.fetchone():
                 # admin 계정 생성
                 sql = """
-                    INSERT INTO members (uid, password, uname, is_admin, regdate)
-                    VALUES (%s, %s, %s, %s, NOW())
+                    INSERT INTO members (uid, password, uname, is_admin)
+                    VALUES ('admin', 'admin', '관리자', TRUE)
                 """
-                values = ('admin', 'admin', '관리자', True)
-                self.cursor.execute(sql, values)
+                self.cursor.execute(sql)
                 self.connection.commit()
-                return True
+            return True
         except Exception as e:
             print(f"관리자 계정 생성 실패: {e}")
             return False
@@ -231,25 +225,15 @@ class DBManager:
             self.disconnect()
 
 
-    def check_post_permission(self, uid, post_id):
+
+    # 게시글 수정/삭제 권한 확인 메서드
+    def check_post_permission(self, user_id, post_id):
         try:
             self.connect()
             # 관리자 확인
-            admin_sql = "SELECT is_admin FROM members WHERE uid = %s"
-            self.cursor.execute(admin_sql, (uid,))
+            sql = "SELECT is_admin FROM members WHERE uid = %s"
+            self.cursor.execute(sql, (user_id,))
             user = self.cursor.fetchone()
-            if user and user['is_admin']:
-                return True
-                
-            # 작성자 확인
-            post_sql = """
-                SELECT m.uid 
-                FROM posts p 
-                JOIN members m ON p.author_id = m.idx 
-                WHERE p.id = %s
-            """
-            self.cursor.execute(post_sql, (post_id,))
-            post = self.cursor.fetchone()
-            return post and post['uid'] == uid
+            return user and user['is_admin']
         finally:
             self.disconnect()

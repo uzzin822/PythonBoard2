@@ -1,81 +1,32 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>게시글 수정 - 게시판</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .preview-image {
-            max-width: 200px;
-            max-height: 200px;
-            border: 2px solid #999;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">게시판</a>
-            <div class="d-flex">
-                {% if user %}
-                    <span class="navbar-text text-white me-3">환영합니다, {{ user.uid }}님!</span>
-                    <a href="/logout" class="btn btn-danger">로그아웃</a>
-                {% else %}
-                    <a href="/login" class="btn btn-success">로그인</a>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>게시글 수정</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="title" class="form-label">제목</label>
+                <input type="text" class="form-control" id="title" name="title" value="{{ post.title }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="content" class="form-label">내용</label>
+                <textarea class="form-control" id="content" name="content" rows="10" required>{{ post.content }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="file" class="form-label">파일</label>
+                <input type="file" class="form-control" id="file" name="file">
+                {% if post.filename %}
+                <small class="text-muted">현재 파일: {{ post.filename }}</small>
                 {% endif %}
             </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">게시글 수정</h3>
+            <div class="d-flex justify-content-between">
+                <a href="/post/{{ post.id }}" class="btn btn-secondary">취소</a>
+                <button type="submit" class="btn btn-primary">수정</button>
             </div>
-            <div class="card-body">
-                <form action="/post/edit/{{ post.id }}" method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="title" class="form-label">제목</label>
-                        <input type="text" class="form-control" id="title" name="title" value="{{ post.title }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="content" class="form-label">내용</label>
-                        <textarea class="form-control" id="content" name="content" rows="10" required>{{ post.content }}</textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="file" class="form-label">첨부파일</label>
-                        {% if post.filename %}
-                        <div class="mb-2">
-                            <p>현재 파일: {{ post.filename }}</p>
-                            {% if post.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')) %}
-                            <img src="{{ url_for('static', filename='uploads/' + post.filename) }}" 
-                                 alt="현재 이미지" 
-                                 class="preview-image">
-                            {% endif %}
-                            <small class="text-muted d-block mt-2">(새 파일을 업로드하면 기존 파일은 삭제됩니다)</small>
-                        </div>
-                        {% endif %}
-                        <input type="file" class="form-control" id="file" name="file" 
-                               accept=".txt,.pdf,.png,.jpg,.jpeg,.gif,.doc,.docx">
-                        <div class="form-text">허용된 파일 형식: txt, pdf, png, jpg, jpeg, gif, doc, docx</div>
-                    </div>
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="/post/{{ post.id }}" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> 취소
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> 저장
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        </form>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}

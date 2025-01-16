@@ -47,7 +47,7 @@
                 </a>
             </div>
             <div>
-                {% if uid %}
+                {% if session.get('is_admin') or session.get('uid') == post.author_uid %}
                 <a href="/post/edit/{{ post.id }}" class="btn btn-primary">
                     <i class="fas fa-edit"></i> 수정
                 </a>
@@ -60,5 +60,8 @@
             </div>
         </div>
     </div>
-</div>
+    
+    
+    
+    
 {% endblock %}

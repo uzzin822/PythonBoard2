@@ -115,9 +115,21 @@ def view_post(id):
     if not post:
         flash("게시글을 찾을 수 없습니다.", "danger")
         return redirect(url_for('index'))
+    
     uid = session.get('uid')
     uname = session.get('uname')
-    return render_template('view.html', post=post, uid=uid, uname=uname)
+    is_admin = session.get('is_admin', False)
+    
+    # 현재 로그인한 사용자 정보 가져오기
+    current_user = manager.get_user_by_uid(uid) if uid else None
+    
+    return render_template('view.html', 
+                         post=post, 
+                         uid=uid, 
+                         uname=uname, 
+                         is_admin=is_admin,
+                         current_user=current_user)
+
 
 
 @app.route('/post/add', methods=['GET', 'POST'])
@@ -147,25 +159,31 @@ def add_post():
 @login_required
 def edit_post(id):
     uid = session.get('uid')
-    if not manager.check_post_permission(uid, id):
+    post = manager.get_post_by_id(id)
+    
+    # 권한 확인
+    if not (session.get('is_admin') or uid == post['author_uid']):
         flash("수정 권한이 없습니다.", "danger")
         return redirect(url_for('view_post', id=id))
     
-    post = manager.get_post_by_id(id)
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
         file = request.files['file']
-        filename = file.filename if file else None
+        filename = file.filename if file and file.filename else post['filename']
         
-        if filename:
+        if file and filename:
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         
         if manager.update_post(id, title, content, filename):
-            return redirect(url_for('index'))
-        return "게시글 수정 실패", 400
+            flash("게시글이 수정되었습니다.", "success")
+            return redirect(url_for('view_post', id=id))
+        
+        flash("게시글 수정에 실패했습니다.", "danger")
+        return redirect(url_for('edit_post', id=id))
     
     return render_template('edit.html', post=post, uid=uid)
+
 
 
 @app.route('/post/delete/<int:id>')
