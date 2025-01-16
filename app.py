@@ -143,17 +143,14 @@ def add_post():
     
     return render_template('add.html', user=user)
 
-# app.py 수정
 @app.route('/post/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_post(id):
     uid = session.get('uid')
-    # 관리자 권한 확인
     if not manager.check_post_permission(uid, id):
-        flash("권한이 없습니다.", "danger")
-        return redirect(url_for('index'))
-    # 이하 기존 코드 유지
-
+        flash("수정 권한이 없습니다.", "danger")
+        return redirect(url_for('view_post', id=id))
+    
     post = manager.get_post_by_id(id)
     if request.method == 'POST':
         title = request.form['title']
@@ -166,9 +163,10 @@ def edit_post(id):
         
         if manager.update_post(id, title, content, filename):
             return redirect(url_for('index'))
-        return "게시글 수정 실패|||", 400
+        return "게시글 수정 실패", 400
     
     return render_template('edit.html', post=post, uid=uid)
+
 
 @app.route('/post/delete/<int:id>')
 def delete_post(id):

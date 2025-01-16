@@ -229,3 +229,27 @@ class DBManager:
             return False
         finally:
             self.disconnect()
+
+
+    def check_post_permission(self, uid, post_id):
+        try:
+            self.connect()
+            # 관리자 확인
+            admin_sql = "SELECT is_admin FROM members WHERE uid = %s"
+            self.cursor.execute(admin_sql, (uid,))
+            user = self.cursor.fetchone()
+            if user and user['is_admin']:
+                return True
+                
+            # 작성자 확인
+            post_sql = """
+                SELECT m.uid 
+                FROM posts p 
+                JOIN members m ON p.author_id = m.idx 
+                WHERE p.id = %s
+            """
+            self.cursor.execute(post_sql, (post_id,))
+            post = self.cursor.fetchone()
+            return post and post['uid'] == uid
+        finally:
+            self.disconnect()
