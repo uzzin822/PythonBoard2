@@ -11,7 +11,7 @@ class DBManager:
             host='52.198.46.183',
             user='root',
             password='1234',
-            database='board c_db2'
+            database='board_db2'
         )
         self.cursor = self.connection.cursor(dictionary=True)
 
