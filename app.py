@@ -27,11 +27,13 @@ def index():
     # 세션에서 로그인 정보 가져오기
     uid = session.get('uid')
     uname = session.get('uname')
+    is_admin = session.get('is_admin', False)  # 관리자 여부
     
     return render_template('index.html', 
                          posts=posts,
                          uid=uid,
                          uname=uname,
+                         is_admin=is_admin,
                          current_page=page,
                          total_pages=total_pages)
 

@@ -11,6 +11,11 @@
 <body>
     {% include 'includes/nav.html' %}
     <div class="container mt-4">
+        {% if session.get('is_admin') %}
+        <nav>
+            <a href="{{ url_for('admin_page') }}" class="btn btn-warning">관리자 페이지</a>
+        </nav>
+        {% endif %}
         {% block content %}
         {% endblock %}
     </div>
