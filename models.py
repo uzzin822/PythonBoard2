@@ -8,10 +8,10 @@ class DBManager:
 
     def connect(self):
         self.connection = mysql.connector.connect(
-            host='10.0.66.14',
-            user='sejong',
+            host='52.198.46.183',
+            user='root',
             password='1234',
-            database='board_db2'
+            database='board c_db2'
         )
         self.cursor = self.connection.cursor(dictionary=True)
 
