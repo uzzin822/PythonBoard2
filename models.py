@@ -8,7 +8,7 @@ class DBManager:
 
     def connect(self):
         self.connection = mysql.connector.connect(
-            host='52.198.46.183',
+            host='localhost',
             user='root',
             password='1234',
             database='board_db2'
