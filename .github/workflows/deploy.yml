@@ -27,7 +27,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST2 }}
           username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY2 }}
           script: |
             cd /home/ubuntu/flask_app/PythonBoard2
             git pull origin main
