@@ -21,7 +21,7 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             git pull origin main
-            sudo systemctl restart flask_app
+            sudo systemctl restart gunicorn_app
 
 
       - name: Deploy to server 2
@@ -35,6 +35,6 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             git pull origin main
-            sudo systemctl restart flask_app
+            sudo systemctl restart gunicorn_app
 
 
