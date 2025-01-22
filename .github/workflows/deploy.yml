@@ -18,7 +18,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/flask_app/PythonBoard2
-            git fetch --all
+            git fetch origin main
             git reset --hard origin/main
             git pull origin main
             sudo systemctl restart flask_app
@@ -32,10 +32,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY2 }}
           script: |
             cd /home/ubuntu/flask_app/PythonBoard2
-            git pull origin main
-            git fetch --all
+            git fetch origin main
             git reset --hard origin/main
+            git pull origin main
             sudo systemctl restart flask_app
 
 
-            
